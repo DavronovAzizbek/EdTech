@@ -10,6 +10,10 @@ connectDB();
 
 app.use(express.json());
 
+const courseRoutes = require("./routes/courses");
+
+app.use("/api/courses", courseRoutes);
+
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
