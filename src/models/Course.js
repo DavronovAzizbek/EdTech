@@ -11,10 +11,6 @@ const courseSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
   {
     timestamps: true,
