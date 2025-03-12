@@ -1,4 +1,5 @@
 const Student = require("../models/Student");
+const Enrollment = require("../models/Enrollment");
 
 const getStudents = async (req, res) => {
   try {
@@ -22,9 +23,9 @@ const getStudentCourses = async (req, res) => {
       studentId: req.params.id,
     }).populate("courseId");
     if (!enrollments.length)
-      return res
-        .status(404)
-        .json({ message: "This student is not enrolled in any courses ❌" });
+      return res.status(404).json({
+        message: "This student is not enrolled in any courses ❌",
+      });
     const courses = enrollments.map((e) => e.courseId);
     res.json(courses);
   } catch (error) {
