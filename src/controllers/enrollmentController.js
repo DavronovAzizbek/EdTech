@@ -5,6 +5,16 @@ const Course = require("../models/Course");
 const createEnrollment = async (req, res) => {
   const { studentId, courseId } = req.body;
   try {
+    const existingEnrollment = await Enrollment.findOne({
+      studentId,
+      courseId,
+    });
+    if (existingEnrollment) {
+      return res.status(400).json({
+        message: "This student is already enrolled in this course",
+      });
+    }
+
     const student = await Student.findById(studentId);
     const course = await Course.findById(courseId);
 
