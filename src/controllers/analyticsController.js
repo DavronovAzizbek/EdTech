@@ -1,5 +1,6 @@
 const Enrollment = require("../models/Enrollment");
 const Course = require("../models/Course");
+const Student = require("../models/Student");
 
 const getPopularCourses = async (req, res) => {
   try {
@@ -21,11 +22,11 @@ const getPopularCourses = async (req, res) => {
 
     res.json({
       message: "The list of the most popular courses has been obtained! ✅",
-      data: popularCourses,
+      popularCourses,
     });
   } catch (err) {
     res.status(500).json({
-      message: "Error! There was a problem retrieving the course list ❌",
+      message: "Failed to retrieve the list of popular courses! ❌",
       error: err.message,
     });
   }
@@ -34,23 +35,32 @@ const getPopularCourses = async (req, res) => {
 const getProgress = async (req, res) => {
   try {
     const totalEnrollments = await Enrollment.countDocuments();
-    const uniqueStudents = await Enrollment.distinct("studentId").then(
-      (students) => students.length
-    );
+    const totalStudents = await Student.countDocuments();
     const totalCourses = await Course.countDocuments();
 
-    const progress =
-      totalEnrollments > 0 && totalCourses > 0
-        ? (totalEnrollments / (uniqueStudents * totalCourses)) * 100
-        : 0;
+    if (totalStudents === 0 || totalCourses === 0) {
+      return res.json({
+        message: "No students or courses found, progress is 0%. ❌",
+        progress: "0.00%",
+        averageCoursesPerStudent: 0,
+      });
+    }
+
+    const averageCoursesPerStudent = totalEnrollments / totalStudents;
+    const maxPossibleEnrollments = totalStudents * totalCourses;
+    const progress = (totalEnrollments / maxPossibleEnrollments) * 100;
 
     res.json({
-      message: "The level of mastery has been calculated! ✅",
+      message: "Progress data has been successfully calculated! ✅",
       progress: progress.toFixed(2) + "%",
+      averageCoursesPerStudent: averageCoursesPerStudent.toFixed(2),
+      totalEnrollments,
+      totalStudents,
+      totalCourses,
     });
   } catch (err) {
     res.status(500).json({
-      message: "Error! There was a problem calculating the mastery level ❌",
+      message: "Failed to calculate progress data! ❌",
       error: err.message,
     });
   }
